@@ -1,9 +1,11 @@
 FROM debian:bullseye-20251117-slim as android-sdk-builder
 
+# Build arguments
+ARG SDK_VERSION="9477386_latest"
+ARG NDK_VERSION="16.1.4479499"
+
 # Environment variables
-ENV SDK_VERSION "9477386_latest"
 ENV ANDROID_SDK_ROOT /android-sdk
-ENV NDK_VERSION "16.1.4479499"
 ENV NDK_HOST_AWK /usr/bin/gawk
 ENV KEYSTORE_NAME keystore_name
 ENV KEYSTORE_PASSWORD keystore_password
@@ -19,37 +21,34 @@ RUN apt update && apt upgrade -y && \
   rm -rf /tmp/* && \
   rm -rf /var/lib/apt/lists/*
 
-# Install Android Command-line tools
-RUN curl https://dl.google.com/android/repository/commandlinetools-linux-${SDK_VERSION}.zip --output cmdline-tools.zip
-RUN unzip cmdline-tools.zip
-RUN mkdir -p /android-sdk/cmdline-tools
-RUN mv cmdline-tools /android-sdk/cmdline-tools/latest
-RUN rm cmdline-tools.zip
-
-# Install Android SDK
-WORKDIR /android-sdk/cmdline-tools/latest/bin
-RUN update-alternatives --set java $(update-alternatives --list java | grep java-17)
-RUN echo "y" | ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29" "tools" "ndk;16.1.4479499"
-
-# Prepare for build
-RUN update-alternatives --set java $(update-alternatives --list java | grep java-11)
-
-# Reduce build time in futher builds
+# Copy OpenBOR repository
 COPY android-mugen /android-mugen
-WORKDIR /android-mugen
-RUN mkdir ./app/src/main/assets/mugen/
-RUN touch ./app/src/main/assets/mugen/mugen.exe
-RUN touch ./app/src/main/assets/mugen/CWSDPMI.EXE
-RUN ./gradlew build
-RUN rm -R app/src/main/assets/mugen/
-RUN rm app/build/outputs/apk/debug/app-debug.apk
-RUN rm app/build/outputs/apk/release/app-release-unsigned.apk
 
-# Remove icons
-RUN rm /android-mugen/app/src/main/res/drawable-hdpi/icon.png
-RUN rm /android-mugen/app/src/main/res/drawable-ldpi/icon.png
-RUN rm /android-mugen/app/src/main/res/drawable-mdpi/icon.png
-RUN rm /android-mugen/app/src/main/res/drawable-xhdpi/icon.png
+# Install Android Command-line tools
+WORKDIR /
+RUN export ANDROID_SDK_ROOT=/android-sdk && \
+  mkdir /android-sdk && \
+  curl -L https://dl.google.com/android/repository/commandlinetools-linux-${SDK_VERSION}.zip --output /android-sdk/cmdline-tools.zip && \
+  unzip /android-sdk/cmdline-tools.zip && \
+  mkdir -p /android-sdk/cmdline-tools && \
+  mv cmdline-tools /android-sdk/cmdline-tools/latest && \
+  cd /android-sdk/cmdline-tools/latest/bin && \
+  update-alternatives --set java $(update-alternatives --list java | grep java-17) && \
+  echo "y" | ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29" "tools" "ndk;${NDK_VERSION}" && \
+  cd /android-mugen && \
+  mkdir ./app/src/main/assets/mugen/ && \
+  touch ./app/src/main/assets/mugen/mugen.exe && \
+  touch ./app/src/main/assets/mugen/CWSDPMI.EXE && \
+  update-alternatives --set java $(update-alternatives --list java | grep java-11) && \
+  ./gradlew build --no-daemon --no-build-cache && \
+  rm -R app/src/main/assets/mugen/ && \
+  rm app/build/outputs/apk/debug/app-debug.apk && \
+  rm app/build/outputs/apk/release/app-release-unsigned.apk && \
+  rm /android-mugen/app/src/main/res/drawable-hdpi/icon.png && \
+  rm /android-mugen/app/src/main/res/drawable-ldpi/icon.png && \
+  rm /android-mugen/app/src/main/res/drawable-mdpi/icon.png && \
+  rm /android-mugen/app/src/main/res/drawable-xhdpi/icon.png && \
+  rm /android-sdk/cmdline-tools.zip
 
 # Volumes
 RUN mkdir /android-mugen/app/src/main/assets/mugen/
