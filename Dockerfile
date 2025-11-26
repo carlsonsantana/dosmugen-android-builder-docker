@@ -1,4 +1,4 @@
-FROM archlinux:base-devel-20230921.0.180222
+FROM debian:bullseye-20251117-slim as android-sdk-builder
 
 # Environment variables
 ENV SDK_VERSION "9477386_latest"
@@ -11,7 +11,13 @@ ENV GAME_APK_NAME ""
 ENV GAME_NAME ""
 
 # Install operational system dependencies
-RUN pacman -Syu --noconfirm && pacman -S jdk11-openjdk jdk17-openjdk unzip git imagemagick --noconfirm
+RUN apt update && apt upgrade -y && \
+  apt install -y curl unzip openjdk-11-jdk openjdk-17-jdk make && \
+  apt-get clean -y && \
+  apt-get autoremove -y && \
+  apt-get autoclean -y && \
+  rm -rf /tmp/* && \
+  rm -rf /var/lib/apt/lists/*
 
 # Install Android Command-line tools
 RUN curl https://dl.google.com/android/repository/commandlinetools-linux-${SDK_VERSION}.zip --output cmdline-tools.zip
@@ -22,11 +28,11 @@ RUN rm cmdline-tools.zip
 
 # Install Android SDK
 WORKDIR /android-sdk/cmdline-tools/latest/bin
-RUN archlinux-java set java-17-openjdk
+RUN update-alternatives --set java $(update-alternatives --list java | grep java-17)
 RUN echo "y" | ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29" "tools" "ndk;16.1.4479499"
 
 # Prepare for build
-RUN archlinux-java set java-11-openjdk
+RUN update-alternatives --set java $(update-alternatives --list java | grep java-11)
 
 # Reduce build time in futher builds
 COPY android-mugen /android-mugen
