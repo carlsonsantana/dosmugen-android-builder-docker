@@ -1,3 +1,3 @@
 [submodule "android-mugen"]
 	path = android-mugen
-	url = https://github.com/roundonejs/android-mugen.git
+	url = https://github.com/carlsonsantana/dosmugen-android.git
