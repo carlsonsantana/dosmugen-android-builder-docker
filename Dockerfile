@@ -18,6 +18,7 @@ RUN mkdir /apktool && \
 
 # Copy Android Mugen repository
 COPY android-mugen /android-mugen
+RUN sed -i "s|com\.fishstix\.dosboxfree|aaaa.bbbbb.ccccc|g" /android-mugen/app/build.gradle
 
 # Install Android Command-line tools
 WORKDIR /
