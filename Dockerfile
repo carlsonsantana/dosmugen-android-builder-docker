@@ -53,10 +53,6 @@ RUN export ANDROID_SDK_ROOT=/android-sdk && \
 # Another image with only used resources
 FROM eclipse-temurin:17.0.17_10-jre-alpine-3.22
 
-# Environment variables
-ENV GAME_APK_NAME "com.mycompany.gamename"
-ENV GAME_NAME "Game Name"
-
 # Install dependencies
 RUN apk --update --no-cache add imagemagick
 
@@ -70,6 +66,12 @@ RUN mkdir /output && mkdir /mugen
 VOLUME /mugen
 VOLUME /icon.png
 VOLUME /output
+
+# Environment variables
+ENV GAME_APK_NAME "com.mycompany.gamename"
+ENV GAME_NAME "Game Name"
+ENV GAME_VERSION_CODE "100"
+ENV GAME_VERSION_NAME "1.0.0"
 
 # Run build
 WORKDIR /
