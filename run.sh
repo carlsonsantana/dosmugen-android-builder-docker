@@ -16,11 +16,15 @@ if [ -f "/game_certificate.key" ]; then
   fi
 fi
 
+resize_icon() {
+  magick /icon.png -resize $1 $2 && oxipng -o 6 --strip safe $2
+}
+
 # Convert icons
-magick /icon.png -resize 72x72 /mugen-android/res/drawable-hdpi/icon.png
-magick /icon.png -resize 36x36 /mugen-android/res/drawable-ldpi/icon.png
-magick /icon.png -resize 48x48 /mugen-android/res/drawable-mdpi/icon.png
-magick /icon.png -resize 96x96 /mugen-android/res/drawable-xhdpi/icon.png
+resize_icon "36x36" "/mugen-android/res/drawable-ldpi/icon.png"
+resize_icon "48x48" "/mugen-android/res/drawable-mdpi/icon.png"
+resize_icon "72x72" "/mugen-android/res/drawable-hdpi/icon.png"
+resize_icon "96x96" "/mugen-android/res/drawable-xhdpi/icon.png"
 
 # Rename APK name and application ID
 sed -i "s|FreeBox|$GAME_NAME|g" /mugen-android/res/values/strings.xml
