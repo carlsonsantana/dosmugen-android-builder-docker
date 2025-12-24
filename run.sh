@@ -2,7 +2,7 @@
 
 set -e
 
-rm -f /output/mugen-unsigned.apk
+rm -f /tmp/mugen-unsigned.apk /output/mugen-aligned.apk
 
 # Convert icons
 magick /icon.png -resize 72x72 /mugen-android/res/drawable-hdpi/icon.png
@@ -18,5 +18,8 @@ printf "version: 2.12.1\napkFileName: app-release-unsigned.apk\nusesFramework:\n
 # Copy DOS Mugen
 cp -r /mugen /mugen-android/assets
 
-# Build an unsigned version of the Android app
-java -jar /apktool/apktool.jar b /mugen-android -o /output/mugen-unsigned.apk
+# Build an aligned version of the Android app
+java -jar /apktool/apktool.jar b /mugen-android -o /tmp/mugen-unsigned.apk
+zipalign -v -p 4 /tmp/mugen-unsigned.apk /output/mugen-aligned.apk
+
+rm /tmp/mugen-unsigned.apk
