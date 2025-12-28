@@ -20,6 +20,7 @@ printf "version: 2.12.1\napkFileName: app-release-unsigned.apk\nusesFramework:\n
 
 # Copy DOS Mugen
 cp -r /mugen $APKTOOL_DECODED_PATH/assets
+rm -rf $APKTOOL_DECODED_PATH/assets/mugen/docs $APKTOOL_DECODED_PATH/assets/mugen/chars/readme.txt $APKTOOL_DECODED_PATH/assets/mugen/sound/readme.txt
 
 build_aligned_apk
 build_unsigned_aab
