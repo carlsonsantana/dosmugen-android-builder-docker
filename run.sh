@@ -25,6 +25,8 @@ resize_icon "36x36" "/mugen-android/res/drawable-ldpi/icon.png"
 resize_icon "48x48" "/mugen-android/res/drawable-mdpi/icon.png"
 resize_icon "72x72" "/mugen-android/res/drawable-hdpi/icon.png"
 resize_icon "96x96" "/mugen-android/res/drawable-xhdpi/icon.png"
+resize_icon "144x144" "/mugen-android/res/drawable-xxhdpi/icon.png"
+resize_icon "192x192" "/mugen-android/res/drawable-xxxhdpi/icon.png"
 
 # Rename APK name and application ID
 sed -i "s|FreeBox|$GAME_NAME|g" /mugen-android/res/values/strings.xml
