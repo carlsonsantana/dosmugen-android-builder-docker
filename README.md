@@ -33,4 +33,5 @@ You must mount the following volumes when running the Docker image. These mounts
 * `GAME_VERSION_NAME` the version showed to the user that allows use letters and dots (example: "1.0.0");
 * `GAME_KEYSTORE_PASSWORD` the keystore password, required when `/game_certificate.key` volume is filled;
 * `GAME_KEYSTORE_KEY_ALIAS` the key alias in keystore, required when `/game_certificate.key` volume is filled;
-* `GAME_KEYSTORE_KEY_PASSWORD` the key password in keystore, required when `/game_certificate.key` volume is filled.
+* `GAME_KEYSTORE_KEY_PASSWORD` the key password in keystore, required when `/game_certificate.key` volume is filled;
+* `GAME_OPTIMIZATION_REMOVE_COMMENTS` set to `true` to remove comments from MUGEN files.
