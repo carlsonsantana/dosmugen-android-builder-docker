@@ -2,12 +2,12 @@ FROM debian:bullseye-20251117-slim as android-sdk-builder
 
 # Build arguments
 ARG SDK_VERSION="9477386_latest"
-ARG NDK_VERSION="16.1.4479499"
+ARG NDK_VERSION="21.4.7075529"
 ARG APKTOOL_VERSION="2.12.1"
 
 # Install operational system dependencies
 RUN apt update && apt upgrade -y && \
-  apt install -y curl unzip openjdk-11-jdk openjdk-17-jdk make file && \
+  apt install -y curl unzip openjdk-17-jdk make file && \
   apt-get clean -y && \
   apt-get autoremove -y && \
   apt-get autoclean -y && \
@@ -18,7 +18,7 @@ RUN mkdir /apktool && \
 
 # Copy Android Mugen repository
 COPY android-mugen /android-mugen
-RUN sed -i "s|com\.fishstix\.dosboxfree|aaaaa.bbbbb.ccccc|g" /android-mugen/app/build.gradle
+RUN sed -i "s|applicationId \"com\.fishstix\.dosboxfree\"|applicationId \"aaaaa.bbbbb.ccccc\"|g" /android-mugen/app/build.gradle
 
 # Install Android Command-line tools
 WORKDIR /
@@ -30,15 +30,12 @@ RUN export ANDROID_SDK_ROOT=/android-sdk && \
   mkdir -p /android-sdk/cmdline-tools && \
   mv cmdline-tools /android-sdk/cmdline-tools/latest && \
   cd /android-sdk/cmdline-tools/latest/bin && \
-  update-alternatives --set java $(update-alternatives --list java | grep java-17) && \
-  echo "y" | ./sdkmanager "build-tools;29.0.3" "platform-tools" "platforms;android-29" "tools" "ndk;${NDK_VERSION}" && \
+  echo "y" | ./sdkmanager "build-tools;36.0.0" "platform-tools" "platforms;android-36" "tools" "ndk;${NDK_VERSION}" && \
   cd /android-mugen && \
   mkdir /android-mugen/app/src/main/assets/mugen/ && \
   touch /android-mugen/app/src/main/assets/mugen/mugen.exe && \
   touch /android-mugen/app/src/main/assets/mugen/CWSDPMI.EXE && \
-  update-alternatives --set java $(update-alternatives --list java | grep java-11) && \
   ./gradlew build --no-daemon --no-build-cache && \
-  update-alternatives --set java $(update-alternatives --list java | grep java-17) && \
   java -jar /apktool/apktool.jar d app/build/outputs/apk/release/app-release-unsigned.apk -o /mugen-android && \
   rm -R /android-mugen/app/src/main/assets/mugen/ && \
   rm /android-mugen/app/build/outputs/apk/debug/app-debug.apk && \
@@ -51,10 +48,14 @@ RUN export ANDROID_SDK_ROOT=/android-sdk && \
   unset ANDROID_SDK_ROOT
 
 # Another image with only used resources
-FROM eclipse-temurin:17.0.17_10-jre-alpine-3.22
+FROM eclipse-temurin:17.0.17_10-jdk-alpine-3.23
 
 # Install dependencies
-RUN apk --update --no-cache add imagemagick
+RUN apk --update --no-cache add curl imagemagick oxipng abseil-cpp-hash gtest libprotobuf fmt && \
+  apk --update --no-cache add android-build-tools --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+RUN curl -L "https://github.com/carlsonsantana/signmyapp/releases/download/1.1.0/signmyapp.jar" --output /opt/signmyapp.jar && \
+  curl -L "https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar" --output /opt/bundletool.jar && \
+  curl -L "https://github.com/Sable/android-platforms/raw/f2ca864c44f277bbc09afda0ba36437ce22105f0/android-36/android.jar" --output /opt/android.jar
 
 # Copy files from previous build
 RUN mkdir /apktool
@@ -66,14 +67,18 @@ RUN mkdir /output && mkdir /mugen
 VOLUME /mugen
 VOLUME /icon.png
 VOLUME /output
+VOLUME /game_certificate.key
 
 # Environment variables
 ENV GAME_APK_NAME "com.mycompany.gamename"
 ENV GAME_NAME "Game Name"
 ENV GAME_VERSION_CODE "100"
 ENV GAME_VERSION_NAME "1.0.0"
+ENV GAME_KEYSTORE_PASSWORD ""
+ENV GAME_KEYSTORE_KEY_ALIAS ""
+ENV GAME_KEYSTORE_KEY_PASSWORD ""
 
 # Run build
 WORKDIR /
-COPY run.sh /
-CMD ["sh", "/run.sh"]
+COPY script /script
+CMD ["sh", "/script/run.sh"]
