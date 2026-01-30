@@ -9,7 +9,7 @@ ICON_BASENAME="icon"
 
 source "/script/common.sh"
 
-remove_previous_files_build
+remove_previous_build_files
 validate_environment_variables_filled
 replace_icons
 

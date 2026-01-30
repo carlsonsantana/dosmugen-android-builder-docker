@@ -9,7 +9,7 @@ OUTPUT_UNSIGNED_AAB_FILE="/output/$APP_BASENAME-unsigned.aab"
 OUTPUT_SIGNED_AAB_FILE="/output/$APP_BASENAME-signed.aab"
 TEMP_RESOURCES_AAB_PATH="/tmp/$APKTOOL_DECODED_PATH-res-aab"
 
-remove_previous_files_build() {
+remove_previous_build_files() {
   rm -f "$TEMP_UNSIGNED_APK_FILE" "$TEMP_ALIGNED_APK_FILE" "$TEMP_UNSIGNED_AAB_FILE"
   rm -fr /tmp/apk /tmp/res.zip /tmp/_base.zip /tmp/base /tmp/base.zip "$TEMP_RESOURCES_AAB_PATH"
   rm -f "$OUTPUT_ALIGNED_APK_FILE" "$OUTPUT_SIGNED_APK_FILE" "$OUTPUT_UNSIGNED_AAB_FILE" "$OUTPUT_SIGNED_AAB_FILE"
